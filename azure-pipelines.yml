@@ -23,7 +23,8 @@ jobs:
   steps:
     - script: |
         docker run \
-          -e OUTPUT_DIR -e ARCH -e TPM_SIMULATOR
+          -e OUTPUT_DIR -e ARCH -e TPM_SIMULATOR \
+          -w /workspace \
           -v `pwd`:/workspace \
           -v $OUTPUT_DIR:/output \
           -i --rm --privileged \
@@ -57,13 +58,14 @@ jobs:
       displayName: 'Download QEMU'
     - script: |
         docker run \
-          -e OUTPUT_DIR -e ARCH -e TPM_SIMULATOR
+          -e OUTPUT_DIR -e ARCH -e TPM_SIMULATOR \
+          -w /workspace \
           -v `pwd`:/workspace \
           -v $OUTPUT_DIR:/output \
           -v `pwd`/qemu-arm-static:/usr/bin/qemu-arm-static \
           -i --rm --privileged \
           arm32v7/debian:9 \
-          build.sh
+          bash ./build.sh
       env:
         SDK_TAG: '2019-05-16'
         OUTPUT_DIR: $(Build.ArtifactStagingDirectory)
