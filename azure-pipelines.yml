@@ -1,0 +1,33 @@
+resources:
+- repo: self
+
+trigger:
+  branches:
+    include:
+    - '*'
+
+jobs:
+- job: LinuxAMD64
+  pool:
+    vmImage: 'ubuntu-16.04'
+  container: 'debian:9'
+  workspace:
+    clean: 'all'
+  steps:
+    - script: |
+        git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git && \
+        cd azure-iot-sdk-c && \
+        mkdir cmake && \
+        cd cmake && \
+        cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL=$TPM_SIMULATOR .. && \
+        make && \
+        mv provisioning_client/tools/tpm_device_provision/tpm_device_provision $OUTPUT_DIR/tpm_device_provision-simulator_$TPM_SIMULATOR
+      env:
+        SDK_TAG: '2019-05-16'
+        TPM_SIMULATOR: 'ON'
+        OUTPUT_DIR: $(Build.ArtifactStagingDirectory)
+      displayName: 'Build'
+    - task: PublishPipelineArtifact@0
+      inputs:
+        artifactName: 'LinuxAMD64'
+        targetPath: $(Build.ArtifactStagingDirectory)
