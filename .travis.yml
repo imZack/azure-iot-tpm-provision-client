@@ -1,12 +1,14 @@
 language: c
 
 env:
-- SDK_TAG=2019-05-16
+  global:
+  - SDK_TAG=2019-05-16
+  - PATH=$HOME/.local/bin:$PATH
 # - ARCH=armhf
 # - ARCH=amd64
-- TPM_SIMULATOR=ON
-- TPM_SIMULATOR=OFF
-- PATH=$HOME/.local/bin:$PATH
+  matrix:
+  - TPM_SIMULATOR=ON
+  - TPM_SIMULATOR=OFF
 
 before_install:
 # set up awscli packages
