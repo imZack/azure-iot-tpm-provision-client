@@ -36,7 +36,7 @@ jobs:
       displayName: 'Build'
     - task: PublishPipelineArtifact@0
       inputs:
-        artifactName: $ARCH_simulator_$TPM_SIMULATOR
+        artifactName: $(ARCH)_simulator_$(TPM_SIMULATOR)
         targetPath: $(Build.ArtifactStagingDirectory)
 
 - job: LinuxARM
@@ -74,5 +74,5 @@ jobs:
       displayName: 'Build'
     - task: PublishPipelineArtifact@0
       inputs:
-        artifactName: $ARCH_simulator_$TPM_SIMULATOR
+        artifactName: $(ARCH)_simulator_$(TPM_SIMULATOR)
         targetPath: $(Build.ArtifactStagingDirectory)
