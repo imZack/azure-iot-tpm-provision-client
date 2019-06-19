@@ -1,0 +1,6 @@
+env:
+- SDK_TAG=2019-05-16
+script:
+- docker run --rm --privileged hypriot/qemu-register
+- git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git
+- mkdir cmake && cd cmake && cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL=ON .. && make
