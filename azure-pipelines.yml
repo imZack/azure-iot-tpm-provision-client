@@ -15,8 +15,8 @@ jobs:
     clean: 'all'
   steps:
     - script: |
-        apt-get update && \
-        apt-get install curl build-essential pkg-config libcurl4-openssl-dev git cmake libssl-dev uuid-dev valgrind
+        sudo apt-get update && \
+        sudo apt-get install curl build-essential pkg-config libcurl4-openssl-dev git cmake libssl-dev uuid-dev valgrind
       displayName: 'Install Deps'
     - script: |
         git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git && \
