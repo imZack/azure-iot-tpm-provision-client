@@ -1,7 +1,10 @@
 language: c
 env:
 - SDK_TAG=2019-05-16
+install:
+- pip install exodus
 script:
-- docker run --rm --privileged hypriot/qemu-register
+- sudo docker run --rm --privileged multiarch/qemu-user-static:register
 - git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git
 - cd azure-iot-sdk-c && mkdir cmake && cd cmake && cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL=ON .. && make
+- exodus azure-iot-sdk-c/cmake/provisioning_client/tools/tpm_device_provision/tpm_device_provision
