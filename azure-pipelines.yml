@@ -23,7 +23,7 @@ jobs:
   steps:
     - script: |
         docker run \
-          -e OUTPUT_DIR -e ARCH -e TPM_SIMULATOR \
+          -e OUTPUT_DIR -e ARCH -e TPM_SIMULATOR -e SDK_TAG \
           -w /workspace \
           -v `pwd`:/workspace \
           -v $OUTPUT_DIR:/output \
@@ -55,11 +55,12 @@ jobs:
   steps:
     - script: |
         wget https://github.com/multiarch/qemu-user-static/releases/download/v4.0.0-2/qemu-arm-static
+        chmod +x qemu-arm-static
         docker run --rm --privileged multiarch/qemu-user-static:register --reset
       displayName: 'Download QEMU & Configure register'
     - script: |
         docker run \
-          -e OUTPUT_DIR -e ARCH -e TPM_SIMULATOR \
+          -e OUTPUT_DIR -e ARCH -e TPM_SIMULATOR -e SDK_TAG \
           -w /workspace \
           -v `pwd`:/workspace \
           -v $OUTPUT_DIR:/output \
