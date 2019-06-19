@@ -3,9 +3,14 @@ env:
 - SDK_TAG=2019-05-16
 install:
 - sudo pip install --upgrade pip
-- sudo pip install exodus
-script:
-- sudo docker run --rm --privileged multiarch/qemu-user-static:register
-- git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git
-- cd azure-iot-sdk-c && mkdir cmake && cd cmake && cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL=ON .. && make
-- `which exodus` provisioning_client/tools/tpm_device_provision/tpm_device_provision
+- sudo pip install exodus-bundler
+jobs:
+  include:
+  - stage: build
+    script:
+      - sudo docker run --rm --privileged multiarch/qemu-user-static:register
+      - git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git
+      - cd azure-iot-sdk-c && mkdir cmake && cd cmake && cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL=ON .. && make
+      - exodus provisioning_client/tools/tpm_device_provision/tpm_device_provision
+  - stage: deploy
+    script: true
