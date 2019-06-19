@@ -36,7 +36,7 @@ jobs:
       displayName: 'Build'
     - task: PublishPipelineArtifact@0
       inputs:
-        artifactName: 'LinuxAMD64'
+        artifactName: $(Build.DefinitionVersion)
         targetPath: $(Build.ArtifactStagingDirectory)
 
 - job: LinuxARM
@@ -74,5 +74,5 @@ jobs:
       displayName: 'Build'
     - task: PublishPipelineArtifact@0
       inputs:
-        artifactName: 'LinuxARM'
+        artifactName: $(Build.DefinitionVersion)
         targetPath: $(Build.ArtifactStagingDirectory)
