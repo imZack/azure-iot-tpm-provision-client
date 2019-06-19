@@ -5,7 +5,7 @@ env
 
 # Install Deps
 export DEBIAN_FRONTEND=noninteractive
-sudo apt-get -o Dpkg::Options::="--force-confold"  install -y curl build-essential pkg-config libcurl4-openssl-dev git cmake libssl-dev uuid-dev valgrind
+apt-get -o Dpkg::Options::="--force-confold"  install -y curl build-essential pkg-config libcurl4-openssl-dev git cmake libssl-dev uuid-dev valgrind
 
 # Build
 git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git
