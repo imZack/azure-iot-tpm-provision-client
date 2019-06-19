@@ -2,6 +2,7 @@ language: c
 env:
 - SDK_TAG=2019-05-16
 install:
+- pip install --upgrade pip
 - pip install exodus
 script:
 - sudo docker run --rm --privileged multiarch/qemu-user-static:register
