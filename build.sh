@@ -32,4 +32,4 @@ cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL="$TPM_SIMULATOR" ..
 make
 
 # Create exodus bundle
-exodus provisioning_client/tools/tpm_device_provision/tpm_device_provision --output "/output/tpm_device_provision-simulator_$TPM_SIMULATOR-$ARCH"
+exodus -v --output "/output/tpm_device_provision-simulator_$TPM_SIMULATOR-$ARCH" provisioning_client/tools/tpm_device_provision/tpm_device_provision
