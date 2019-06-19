@@ -5,6 +5,7 @@ env
 
 # Install Deps
 export DEBIAN_FRONTEND=noninteractive
+apt-get update
 apt-get -o Dpkg::Options::="--force-confold"  install -y curl build-essential pkg-config libcurl4-openssl-dev git cmake libssl-dev uuid-dev valgrind
 
 # Build
