@@ -10,10 +10,16 @@ jobs:
 - job: LinuxAMD64
   pool:
     vmImage: 'ubuntu-16.04'
-  container: 'debian:9'
+  container:
+    image: 'debian:9'
+    options: '--name ci-container -v /usr/bin/docker:/tmp/docker:ro'
   workspace:
     clean: 'all'
   steps:
+    - script: |
+        /tmp/docker exec -t -u 0 ci-container \
+        sh -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -y install sudo"
+        displayName: 'Set up sudo'
     - script: |
         sudo apt-get update && \
         sudo apt-get install curl build-essential pkg-config libcurl4-openssl-dev git cmake libssl-dev uuid-dev valgrind
