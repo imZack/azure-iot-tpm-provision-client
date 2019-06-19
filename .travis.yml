@@ -1,40 +1,33 @@
-language: c
+resources:
+- repo: self
 
-env:
-  global:
-  - SDK_TAG=2019-05-16
-  - PATH=$HOME/.local/bin:$PATH
-# - ARCH=armhf
-# - ARCH=amd64
-  matrix:
-  - TPM_SIMULATOR=ON
-  - TPM_SIMULATOR=OFF
-
-before_install:
-# set up awscli packages
-- pip install --user awscli
-- mkdir -p ~/$TRAVIS_BUILD_NUMBER
-- aws s3 sync s3://travis-build-stages-shared-storage-test/$TRAVIS_BUILD_NUMBER ~/$TRAVIS_BUILD_NUMBER
-
-after_success:
-- aws s3 sync ~/$TRAVIS_BUILD_NUMBER s3://travis-build-stages-shared-storage-test/$TRAVIS_BUILD_NUMBER
-
-install:
-- sudo docker run --rm --privileged multiarch/qemu-user-static:register
-- git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git
+trigger:
+  branches:
+    include:
+    - '*'
 
 jobs:
-  include:
-  - stage: build
-    script:
-    - cd azure-iot-sdk-c && mkdir cmake && cd cmake && cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL=$TPM_SIMULATOR .. && make
-    - mv provisioning_client/tools/tpm_device_provision/tpm_device_provision ~/$TRAVIS_BUILD_NUMBER/tpm_device_provision-simulator_${TPM_SIMULATOR}
-  - stage: deploy
-    script:
-    - sudo pip install --upgrade pip
-    - sudo pip install exodus-bundler
-    - ls -alh ~/$TRAVIS_BUILD_NUMBER/* 
-    - exodus ~/$TRAVIS_BUILD_NUMBER/*
-    - ls -alh
-    after_success:
-    - aws s3 rm --recursive s3://travis-build-stages-shared-storage-test/$TRAVIS_BUILD_NUMBER # clean up after ourselves
+- job: LinuxAMD64
+  pool:
+    vmImage: 'ubuntu-16.04'
+  workspace:
+    clean: 'all'
+  strategy:
+    matrix:
+      TPM_SIMULATOR_ON:
+        TPM_SIMULATOR: 'ON'
+        ARCH: 'AMD64'
+      TPM_SIMULATOR_OFF:
+        TPM_SIMULATOR: 'OFF'
+        ARCH: 'AMD64'
+  steps:
+    - script: |
+        docker run -v `pwd`:/workspace -v $OUTPUT_DIR:/output -i --rm --privileged debian:9 build.sh
+      env:
+        SDK_TAG: '2019-05-16'
+        OUTPUT_DIR: $(Build.ArtifactStagingDirectory)
+      displayName: 'Build'
+    - task: PublishPipelineArtifact@0
+      inputs:
+        artifactName: 'LinuxAMD64'
+        targetPath: $(Build.ArtifactStagingDirectory)
