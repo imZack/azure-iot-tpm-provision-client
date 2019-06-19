@@ -1,16 +1,42 @@
 language: c
+
 env:
 - SDK_TAG=2019-05-16
+# - ARCH=armhf
+# - ARCH=amd64
+- TPM_SIMULATOR=ON
+- TPM_SIMULATOR=OFF
+
+env:
+  global:
+    # include $HOME/.local/bin for `aws`
+    - PATH=$HOME/.local/bin:$PATH
+
+before_install:
+# set up awscli packages
+- pip install --user awscli
+- mkdir -p ~/$TRAVIS_BUILD_NUMBER
+- aws s3 sync s3://travis-build-stages-shared-storage-test/$TRAVIS_BUILD_NUMBER ~/$TRAVIS_BUILD_NUMBER
+
+after_success:
+- aws s3 sync ~/$TRAVIS_BUILD_NUMBER s3://travis-build-stages-shared-storage-test/$TRAVIS_BUILD_NUMBER
+
 install:
-- sudo pip install --upgrade pip
-- sudo pip install exodus-bundler
+- sudo docker run --rm --privileged multiarch/qemu-user-static:register
+- git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git
+
 jobs:
   include:
   - stage: build
     script:
-      - sudo docker run --rm --privileged multiarch/qemu-user-static:register
-      - git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git
-      - cd azure-iot-sdk-c && mkdir cmake && cd cmake && cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL=ON .. && make
-      - exodus provisioning_client/tools/tpm_device_provision/tpm_device_provision
+    - cd azure-iot-sdk-c && mkdir cmake && cd cmake && cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL=$TPM_SIMULATOR .. && make
+    - mv provisioning_client/tools/tpm_device_provision/tpm_device_provision ~/$TRAVIS_BUILD_NUMBER/tpm_device_provision-simulator_${TPM_SIMULATOR}
   - stage: deploy
-    script: true
+    script:
+    - sudo pip install --upgrade pip
+    - sudo pip install exodus-bundler
+    - ls -alh ~/$TRAVIS_BUILD_NUMBER/* 
+    - exodus ~/$TRAVIS_BUILD_NUMBER/*
+    - ls -alh
+    after_success:
+    - aws s3 rm --recursive s3://travis-build-stages-shared-storage-test/$TRAVIS_BUILD_NUMBER # clean up after ourselves
