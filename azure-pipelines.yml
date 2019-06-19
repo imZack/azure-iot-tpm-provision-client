@@ -15,11 +15,17 @@ jobs:
     options: '--name ci-container -v /usr/bin/docker:/tmp/docker:ro'
   workspace:
     clean: 'all'
+  strategy:
+    matrix:
+      TPM_SIMULATOR_ON:
+        TPM_SIMULATOR: 'ON'
+      TPM_SIMULATOR_OFF:
+        TPM_SIMULATOR: 'OFF'
   steps:
     - script: |
         /tmp/docker exec -t -u 0 ci-container \
         sh -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -y install sudo"
-      displayName: 'Set up sudo'
+      displayName: 'Setup sudo'
     - script: |
         sudo apt-get update && \
         sudo apt-get install -y curl build-essential pkg-config libcurl4-openssl-dev git cmake libssl-dev uuid-dev valgrind
@@ -34,7 +40,47 @@ jobs:
         mv provisioning_client/tools/tpm_device_provision/tpm_device_provision $OUTPUT_DIR/tpm_device_provision-simulator_$TPM_SIMULATOR
       env:
         SDK_TAG: '2019-05-16'
-        TPM_SIMULATOR: 'ON'
+        OUTPUT_DIR: $(Build.ArtifactStagingDirectory)
+      displayName: 'Build'
+    - task: PublishPipelineArtifact@0
+      inputs:
+        artifactName: 'LinuxAMD64'
+        targetPath: $(Build.ArtifactStagingDirectory)
+
+- job: LinuxARM
+  pool:
+    vmImage: 'ubuntu-16.04'
+  container:
+    image: 'arm32v7/debian:9'
+    options: '--name ci-container -v /usr/bin/docker:/tmp/docker:ro'
+  workspace:
+    clean: 'all'
+  strategy:
+    matrix:
+      TPM_SIMULATOR_ON:
+        TPM_SIMULATOR: ON
+      TPM_SIMULATOR_OFF:
+        TPM_SIMULATOR: OFF
+  steps:
+    - script: |
+        /tmp/docker run -t --rm --privileged multiarch/qemu-user-static:register --reset
+        /tmp/docker exec -t -u 0 ci-container \
+        sh -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -y install sudo"
+      displayName: 'Setup sudo'
+    - script: |
+        sudo apt-get update && \
+        sudo apt-get install -y curl build-essential pkg-config libcurl4-openssl-dev git cmake libssl-dev uuid-dev valgrind
+      displayName: 'Install Deps'
+    - script: |
+        git clone --recursive --depth 1 --branch "$SDK_TAG" https://github.com/Azure/azure-iot-sdk-c.git && \
+        cd azure-iot-sdk-c && \
+        mkdir cmake && \
+        cd cmake && \
+        cmake -Duse_prov_client:BOOL=ON -Duse_tpm_simulator:BOOL=$TPM_SIMULATOR .. && \
+        make && \
+        mv provisioning_client/tools/tpm_device_provision/tpm_device_provision $OUTPUT_DIR/tpm_device_provision-simulator_$TPM_SIMULATOR
+      env:
+        SDK_TAG: '2019-05-16'
         OUTPUT_DIR: $(Build.ArtifactStagingDirectory)
       displayName: 'Build'
     - task: PublishPipelineArtifact@0
