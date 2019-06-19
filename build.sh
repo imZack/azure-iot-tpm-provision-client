@@ -20,6 +20,7 @@ apt-get -o Dpkg::Options::="--force-confold" install -y \
   valgrind
 
 pip install -U pip
+hash -d pip
 pip install exodus-bundler
 
 # Build
