@@ -29,7 +29,7 @@ jobs:
           -v $OUTPUT_DIR:/output \
           -i --rm --privileged \
           debian:9 \
-          build.sh
+          bash build.sh
       env:
         SDK_TAG: '2019-05-16'
         OUTPUT_DIR: $(Build.ArtifactStagingDirectory)
