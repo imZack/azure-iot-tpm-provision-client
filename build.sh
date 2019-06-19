@@ -8,7 +8,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get -o Dpkg::Options::="--force-confold" install -y \
   python \
-  python-pip
+  python-pip \
   curl \
   build-essential \
   pkg-config \
