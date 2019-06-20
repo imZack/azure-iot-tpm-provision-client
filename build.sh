@@ -7,6 +7,7 @@ env
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get -o Dpkg::Options::="--force-confold" install -y \
+  musl-tools \
   python \
   python-pip \
   curl \
