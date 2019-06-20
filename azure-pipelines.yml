@@ -27,7 +27,7 @@ jobs:
           -w /workspace \
           -v `pwd`:/workspace \
           -v $OUTPUT_DIR:/output \
-          -i --rm --privileged \
+          --rm --privileged \
           debian:9 \
           bash build.sh
       env:
